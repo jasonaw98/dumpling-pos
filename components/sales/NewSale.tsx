@@ -22,12 +22,14 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { ShoppingCart, CreditCard, DollarSign } from "lucide-react";
+import { ShoppingCart, DollarSign, QrCode } from "lucide-react";
 import { toast } from "sonner";
 
 export function NewSale() {
   const [cart, setCart] = useState<CartItemType[]>([]);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("Card");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | undefined>(
+    undefined,
+  );
   const { addSale } = useSales();
 
   const handleAddToCart = (productId: number) => {
@@ -66,6 +68,13 @@ export function NewSale() {
       toast.warning("Empty Cart", {
         description:
           "Please add products to the cart before completing the sale.",
+      });
+      return;
+    }
+
+    if (!paymentMethod) {
+      toast.warning("Payment Method Required", {
+        description: "Please select a payment method to complete the sale.",
       });
       return;
     }
@@ -149,7 +158,7 @@ export function NewSale() {
                 <div>
                   <Label className="mb-2 block">Payment Method</Label>
                   <RadioGroup
-                    defaultValue="Card"
+                    value={paymentMethod ?? ""}
                     className="grid grid-cols-2 gap-4"
                     onValueChange={(value: string) =>
                       setPaymentMethod(value as PaymentMethod)
@@ -157,16 +166,16 @@ export function NewSale() {
                   >
                     <div>
                       <RadioGroupItem
-                        value="Card"
-                        id="card"
+                        value="QR Pay"
+                        id="QR Pay"
                         className="peer sr-only"
                       />
                       <Label
-                        htmlFor="card"
-                        className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                        htmlFor="QR Pay"
+                        className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-gray-200 peer-aria-checked:bg-black peer-aria-checked:text-white peer-aria-checked:hover:bg-black"
                       >
-                        <CreditCard className="mb-3 h-6 w-6" />
-                        Card
+                        <QrCode className="mb-3 h-6 w-6" />
+                        QR Pay
                       </Label>
                     </div>
                     <div>
@@ -177,7 +186,7 @@ export function NewSale() {
                       />
                       <Label
                         htmlFor="cash"
-                        className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                        className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-gray-200 peer-aria-checked:bg-black peer-aria-checked:text-white peer-aria-checked:hover:bg-black"
                       >
                         <DollarSign className="mb-3 h-6 w-6" />
                         Cash
@@ -191,7 +200,11 @@ export function NewSale() {
         </CardContent>
         {cart.length > 0 && (
           <CardFooter>
-            <Button onClick={handleCompleteSale} className="w-full">
+            <Button
+              onClick={handleCompleteSale}
+              className="w-full"
+              disabled={!paymentMethod}
+            >
               Complete Sale
             </Button>
           </CardFooter>

@@ -17,10 +17,10 @@ export default function Home() {
   return (
     <SalesProvider>
       <div className="flex min-h-screen w-full flex-col bg-background">
-        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+        <main className="flex flex-1 flex-col gap-4 p-3 md:gap-8 md:p-8">
           <Tabs defaultValue="new-sale">
-            <div className="flex items-center">
-              <TabsList>
+            <div className="flex items-center justify-center">
+              <TabsList className="bg-gray-200">
                 <TabsTrigger value="new-sale">
                   <PlusCircle className="mr-1 h-4 w-4" />
                   New Sale

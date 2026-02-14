@@ -3,27 +3,27 @@ import type { Product } from './types';
 export const PRODUCTS: Product[] = [
   {
     id: 1,
-    name: 'Cabbage',
+    name: '🥬 Cabbage',
     price: 17.9,
   },
   {
     id: 2,
-    name: 'Leek',
+    name: '🌿 Leek',
     price: 17.9,
   },
   {
     id: 3,
-    name: 'Corn',
+    name: '🌽 Corn',
     price: 17.9,
   },
   {
     id: 4,
-    name: 'Mushroom',
+    name: '🍄 Mushroom',
     price: 22.9,
   },
   {
     id: 5,
-    name: 'Shrimp',
+    name: '🦐 Shrimp',
     price: 24.9,
   },
 ];
