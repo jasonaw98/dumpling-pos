@@ -97,14 +97,14 @@ export function SalesPerformance() {
           label: item.name,
           color:
             item.name == "🌿 Leek"
-              ? "maroon"
+              ? "oklch(0.85 0.21 129)"
               : item.name == "🌽 Corn"
-                ? "yellow"
+                ? "oklch(0.86 0.17 92)"
                 : item.name == "🍄 Mushroom"
-                  ? "red"
+                  ? "var(--destructive)"
                   : item.name == "🦐 Shrimp"
-                    ? "orange"
-                    : "green",
+                    ? "oklch(0.70 0.19 48)"
+                    : "oklch(0.72 0.19 150)",
         };
       });
 
@@ -156,14 +156,14 @@ export function SalesPerformance() {
           <CardTitle>Weekly Revenue</CardTitle>
           <CardDescription>Revenue generated each week.</CardDescription>
         </CardHeader>
-        <CardContent className="overflow-auto">
+        <CardContent className="overflow-auto px-1">
           {noData ? (
             <div className="flex h-64 items-center justify-center text-muted-foreground">
               No sales data available.
             </div>
           ) : (
-            <ChartContainer config={revenueChartConfig} className="h-64">
-              <BarChart data={weeklyData}>
+            <ChartContainer config={revenueChartConfig} className="h-64 w-full">
+              <BarChart data={weeklyData} barCategoryGap="10%" className="-ml-2">
                 <CartesianGrid vertical={false} />
                 <XAxis
                   dataKey="week"
@@ -179,12 +179,7 @@ export function SalesPerformance() {
                   cursor={false}
                   content={<ChartTooltipContent indicator="dot" />}
                 />
-                <Bar
-                  dataKey="revenue"
-                  fill="var(--color-revenue)"
-                  radius={4}
-                  barSize={32}
-                />
+                <Bar dataKey="revenue" fill="var(--color-revenue)" radius={4} />
               </BarChart>
             </ChartContainer>
           )}
@@ -195,14 +190,14 @@ export function SalesPerformance() {
           <CardTitle>Monthly Revenue</CardTitle>
           <CardDescription>Revenue generated each month.</CardDescription>
         </CardHeader>
-        <CardContent className="overflow-auto">
+        <CardContent className="overflow-auto px-1">
           {noData ? (
             <div className="flex h-64 items-center justify-center text-muted-foreground">
               No sales data available.
             </div>
           ) : (
-            <ChartContainer config={revenueChartConfig} className="h-64">
-              <BarChart data={monthlyData}>
+            <ChartContainer config={revenueChartConfig} className="h-64 w-full">
+              <BarChart data={monthlyData} barCategoryGap="10%" className="-ml-2">
                 <CartesianGrid vertical={false} />
                 <XAxis
                   dataKey="month"
@@ -215,12 +210,7 @@ export function SalesPerformance() {
                   cursor={false}
                   content={<ChartTooltipContent indicator="dot" />}
                 />
-                <Bar
-                  dataKey="revenue"
-                  fill="var(--color-revenue)"
-                  radius={4}
-                  barSize={32}
-                />
+                <Bar dataKey="revenue" fill="var(--color-revenue)" radius={4} />
               </BarChart>
             </ChartContainer>
           )}
@@ -233,17 +223,18 @@ export function SalesPerformance() {
             Total quantity sold for each product.
           </CardDescription>
         </CardHeader>
-        <CardContent className="overflow-auto">
+        <CardContent className="overflow-auto px-1">
           {noData ? (
             <div className="flex h-80 items-center justify-center text-muted-foreground">
               No sales data available.
             </div>
           ) : (
-            <ChartContainer config={itemChartConfig} className="h-80">
+            <ChartContainer config={itemChartConfig} className="h-80 w-full">
               <BarChart
                 data={itemPerformanceData}
                 layout="vertical"
-                margin={{ left: 20 }}
+                margin={{ left: -10 }}
+                barCategoryGap={10}
               >
                 <CartesianGrid horizontal={false} />
                 <YAxis
@@ -260,7 +251,7 @@ export function SalesPerformance() {
                   cursor={false}
                   content={<ChartTooltipContent indicator="line" />}
                 />
-                <Bar dataKey="quantity" radius={4} barSize={20}>
+                <Bar dataKey="quantity" radius={4}>
                   {itemPerformanceData.map((entry) => (
                     <Cell
                       key={`cell-${entry.name}`}
