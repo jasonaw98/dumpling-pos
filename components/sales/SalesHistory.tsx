@@ -208,9 +208,7 @@ export function SalesHistory() {
                       <TableCell>
                         {new Date(sale.timestamp).toLocaleDateString()}
                       </TableCell>
-                      <TableCell>
-                        {sale.orderId}
-                      </TableCell>
+                      <TableCell>{sale.orderId}</TableCell>
                       <TableCell>
                         {sale.items.reduce(
                           (acc, item) => acc + item.quantity,
@@ -228,12 +226,32 @@ export function SalesHistory() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="capitalize">
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            "capitalize",
+                            sale.deliveryStatus === "Delivered"
+                              ? "border-emerald-500 text-emerald-600"
+                              : sale.deliveryStatus === "Pending"
+                                ? "border-yellow-500 text-yellow-500"
+                                : "",
+                          )}
+                        >
                           {sale.deliveryStatus}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className={cn("capitalize", sale.salesStatus === "Completed" ? "border-green-500 text-green-700" : "")}>
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            "capitalize",
+                            sale.salesStatus === "Completed"
+                              ? "border-emerald-500 text-emerald-600"
+                              : sale.salesStatus === "Pending"
+                                ? "border-yellow-500 text-yellow-500"
+                                : "",
+                          )}
+                        >
                           {sale.salesStatus}
                         </Badge>
                       </TableCell>
@@ -265,7 +283,9 @@ export function SalesHistory() {
         <CardFooter className="justify-end space-x-6 border-t p-4">
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Total Items</span>
-            <span className="text-sm md:text-lg font-bold">{totalItemsSold}</span>
+            <span className="text-sm md:text-lg font-bold">
+              {totalItemsSold}
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Total Revenue</span>

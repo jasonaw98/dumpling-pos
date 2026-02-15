@@ -174,7 +174,7 @@ export function SalesPerformance() {
                     `W${value.substring(value.indexOf("-W") + 2)}`
                   }
                 />
-                <YAxis tickFormatter={(value) => `$${value}`} />
+                <YAxis tickFormatter={(value) => `RM ${value}`} />
                 <ChartTooltip
                   cursor={false}
                   content={<ChartTooltipContent indicator="dot" />}
@@ -205,7 +205,7 @@ export function SalesPerformance() {
                   tickMargin={10}
                   axisLine={false}
                 />
-                <YAxis tickFormatter={(value) => `$${value}`} />
+                <YAxis tickFormatter={(value) => `RM ${value}`} />
                 <ChartTooltip
                   cursor={false}
                   content={<ChartTooltipContent indicator="dot" />}
