@@ -1,12 +1,5 @@
+import { useState, useEffect } from "react";
 import type { Sale } from "@/lib/types";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerDescription,
-  DrawerFooter,
-} from "@/components/ui/drawer";
 import {
   Dialog,
   DialogContent,
@@ -18,10 +11,16 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { DollarSign, QrCode, Trash2 } from "lucide-react";
 import { useSales } from "@/context/SalesContext";
 import { toast } from "sonner";
-import { useIsMobile } from "@/lib/use-mobile";
 
 interface SaleDetailDialogProps {
   sale: Sale | null;
@@ -34,8 +33,21 @@ export function SaleDetailDialog({
   isOpen,
   onOpenChange,
 }: SaleDetailDialogProps) {
-  const isMobile = useIsMobile();
-  const { deleteSale } = useSales();
+  const { deleteSale, updateSale } = useSales();
+  const [deliveryStatus, setDeliveryStatus] = useState(
+    sale?.deliveryStatus || "Pending",
+  );
+  const [salesStatus, setSalesStatus] = useState(
+    sale?.salesStatus || "Pending",
+  );
+
+  // Sync local state with prop changes
+  useEffect(() => {
+    if (sale) {
+      setDeliveryStatus(sale.deliveryStatus || "Pending");
+      setSalesStatus(sale.salesStatus || "Pending");
+    }
+  }, [sale]);
 
   const handleDelete = async () => {
     if (!sale) return;
@@ -56,68 +68,119 @@ export function SaleDetailDialog({
     }
   };
 
+  const handleStatusChange = async (
+    field: "deliveryStatus" | "salesStatus",
+    value: string,
+  ) => {
+    if (!sale) return;
+
+    // Update local state immediately for optimistic UI
+    if (field === "deliveryStatus") {
+      setDeliveryStatus(value as typeof deliveryStatus);
+    } else {
+      setSalesStatus(value as typeof salesStatus);
+    }
+
+    try {
+      await updateSale(sale.id, { [field]: value });
+      toast.success("Status Updated");
+    } catch (error) {
+      toast.error("Failed to update status");
+      console.error(error);
+      // Revert on error
+      if (field === "deliveryStatus") {
+        setDeliveryStatus(sale.deliveryStatus || "Pending");
+      } else {
+        setSalesStatus(sale.salesStatus || "Pending");
+      }
+    }
+  };
+
   if (!sale) return null;
 
-  return isMobile ? (
-    <Drawer open={isOpen} onOpenChange={onOpenChange}>
-      <DrawerContent className="px-2 pb-8">
-        <DrawerHeader>
-          <DrawerTitle className="text-sm">Sale Details</DrawerTitle>
-          <DrawerDescription>
-            {new Date(sale.timestamp).toLocaleString()}
-          </DrawerDescription>
-        </DrawerHeader>
-        <div className="space-y-4 mx-auto">
-          <div className="space-y-2">
-            {sale.items.map((item) => (
-              <div
-                key={item.id}
-                className="flex justify-between items-center w-xs md:w-md"
-              >
-                <div>
-                  <p className="font-medium">{item.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {item.quantity} x RM{item.price.toFixed(2)}
-                  </p>
-                </div>
-                <p className="font-semibold">
-                  RM {(item.quantity * item.price).toFixed(2)}
-                </p>
-              </div>
-            ))}
-          </div>
-          <Separator />
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Payment Method</span>
-              <Badge variant={"secondary"} className="capitalize">
-                {sale.paymentMethod === "QR Pay" ? (
-                  <QrCode className="mr-1 h-3 w-3" />
-                ) : (
-                  <DollarSign className="mr-1 h-3 w-3" />
-                )}
-                {sale.paymentMethod}
-              </Badge>
+  const content = (
+    <div className="space-y-4 mx-auto w-full">
+      <div className="grid grid-cols-2 gap-4">
+        <p className="font-medium">{sale.orderId || "N/A"}</p>
+        <p className="font-medium">{sale.salesman || "N/A"}</p>
+      </div>
+      <Separator />
+      <div className="space-y-2">
+        {sale.items.map((item) => (
+          <div key={item.id} className="flex justify-between items-center">
+            <div>
+              <p className="font-medium">{item.name}</p>
+              <p className="text-sm text-muted-foreground">
+                {item.quantity} x RM{item.price.toFixed(2)}
+              </p>
             </div>
-            <div className="flex justify-between font-bold text-lg">
-              <span>Total</span>
-              <span>RM {sale.total.toFixed(2)}</span>
-            </div>
+            <p className="font-semibold">
+              RM {(item.quantity * item.price).toFixed(2)}
+            </p>
           </div>
-        </div>
-        <DrawerFooter className="pt-2">
-          <Button
-            variant="destructive"
-            onClick={handleDelete}
-            className="w-full"
+        ))}
+      </div>
+      <Separator />
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-1">
+          <span className="text-sm">Delivery Status</span>
+          <Select
+            value={deliveryStatus}
+            onValueChange={(value) =>
+              handleStatusChange("deliveryStatus", value!)
+            }
           >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Delete Sale
-          </Button>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
-  ) : (
+            <SelectTrigger>
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Pending">Pending</SelectItem>
+              <SelectItem value="Delivered">Delivered</SelectItem>
+              <SelectItem value="Cancelled">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1">
+          <span className="text-sm">Sales Status</span>
+          <Select
+            value={salesStatus}
+            onValueChange={(value) => handleStatusChange("salesStatus", value!)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Pending">Pending</SelectItem>
+              <SelectItem value="Completed">Completed</SelectItem>
+              <SelectItem value="Refunded">Refunded</SelectItem>
+              <SelectItem value="Cancelled">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Payment Method</span>
+          <Badge variant={"secondary"} className="capitalize">
+            {sale.paymentMethod === "QR Pay" ? (
+              <QrCode className="mr-1 h-3 w-3" />
+            ) : (
+              <DollarSign className="mr-1 h-3 w-3" />
+            )}
+            {sale.paymentMethod}
+          </Badge>
+        </div>
+        <div className="flex justify-between font-bold text-lg">
+          <span>Total</span>
+          <span>RM {sale.total.toFixed(2)}</span>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
@@ -126,41 +189,7 @@ export function SaleDetailDialog({
             {new Date(sale.timestamp).toLocaleString()}
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 mx-auto w-full">
-          <div className="space-y-2">
-            {sale.items.map((item) => (
-              <div key={item.id} className="flex justify-between items-center">
-                <div>
-                  <p className="font-medium">{item.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {item.quantity} x RM{item.price.toFixed(2)}
-                  </p>
-                </div>
-                <p className="font-semibold">
-                  RM {(item.quantity * item.price).toFixed(2)}
-                </p>
-              </div>
-            ))}
-          </div>
-          <Separator />
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Payment Method</span>
-              <Badge variant={"secondary"} className="capitalize">
-                {sale.paymentMethod === "QR Pay" ? (
-                  <QrCode className="mr-1 h-3 w-3" />
-                ) : (
-                  <DollarSign className="mr-1 h-3 w-3" />
-                )}
-                {sale.paymentMethod}
-              </Badge>
-            </div>
-            <div className="flex justify-between font-bold text-lg">
-              <span>Total</span>
-              <span>RM {sale.total.toFixed(2)}</span>
-            </div>
-          </div>
-        </div>
+        {content}
         <DialogFooter>
           <Button
             variant="destructive"

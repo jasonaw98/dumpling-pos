@@ -15,12 +15,18 @@ export interface SaleItem {
   quantity: number;
 }
 
-export type PaymentMethod = 'Cash' | 'QR Pay';
+export type PaymentMethod = "Cash" | "QR Pay";
+export type DeliveryStatus = "Pending" | "Delivered" | "Cancelled";
+export type SalesStatus = "Pending" | "Completed" | "Refunded" | "Cancelled";
 
 export interface Sale {
   id: string;
+  orderId: string;
   items: SaleItem[];
   total: number;
   paymentMethod: PaymentMethod;
+  salesman: string;
+  deliveryStatus: DeliveryStatus;
+  salesStatus: SalesStatus;
   timestamp: string;
 }

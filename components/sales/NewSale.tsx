@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { ShoppingCart, DollarSign, QrCode } from "lucide-react";
 import { toast } from "sonner";
 
@@ -30,6 +31,7 @@ export function NewSale() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | undefined>(
     undefined,
   );
+  const [salesman, setSalesman] = useState("");
   const { addSale } = useSales();
 
   const handleAddToCart = (productId: number) => {
@@ -79,6 +81,13 @@ export function NewSale() {
       return;
     }
 
+    if (!salesman.trim()) {
+      toast.warning("Salesman Required", {
+        description: "Please enter the salesman name.",
+      });
+      return;
+    }
+
     const itemsToSave: SaleItem[] = cart.map(
       ({ id, name, price, quantity }) => ({
         id,
@@ -92,6 +101,7 @@ export function NewSale() {
       items: itemsToSave,
       total: totalAmount,
       paymentMethod,
+      salesman,
     });
 
     toast.success("Sale Completed", {
@@ -99,6 +109,8 @@ export function NewSale() {
     });
 
     setCart([]);
+    setSalesman("");
+    setPaymentMethod(undefined);
   };
 
   return (
@@ -151,6 +163,31 @@ export function NewSale() {
             <>
               <Separator />
               <div className="p-6 space-y-4">
+                <div>
+                  <Label htmlFor="salesman" className="mb-2 block">
+                    Salesman
+                  </Label>
+                  <Input
+                    id="salesman"
+                    placeholder="Enter salesman name"
+                    value={salesman}
+                    onChange={(e) => setSalesman(e.target.value)}
+                  />
+                  <div className="flex gap-2 p-1">
+                    <Button
+                      variant="outline"
+                      onClick={() => setSalesman("Norman")}
+                    >
+                      Norman
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setSalesman("Albert")}
+                    >
+                      Albert
+                    </Button>
+                  </div>
+                </div>
                 <div className="flex justify-between text-lg font-semibold">
                   <span>Total</span>
                   <span>RM {totalAmount.toFixed(2)}</span>
@@ -205,7 +242,7 @@ export function NewSale() {
               className="w-full"
               disabled={!paymentMethod}
             >
-              Complete Sale
+              Process Sale
             </Button>
           </CardFooter>
         )}
