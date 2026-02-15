@@ -42,6 +42,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { PRODUCTS } from "@/lib/products";
+import { cn } from "@/lib/utils";
 
 export function SalesHistory() {
   const { sales, loading } = useSales();
@@ -164,7 +165,11 @@ export function SalesHistory() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Date</TableHead>
+                  <TableHead>Order ID</TableHead>
                   <TableHead>Items</TableHead>
+                  <TableHead>Payment</TableHead>
+                  <TableHead>Salesman</TableHead>
+                  <TableHead>Delivery</TableHead>
                   <TableHead>Payment</TableHead>
                   <TableHead className="text-right">Total</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -181,7 +186,13 @@ export function SalesHistory() {
                         <Skeleton className="h-5 w-10" />
                       </TableCell>
                       <TableCell>
+                        <Skeleton className="h-5 w-10" />
+                      </TableCell>
+                      <TableCell>
                         <Skeleton className="h-5 w-16" />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Skeleton className="h-5 w-20 ml-auto" />
                       </TableCell>
                       <TableCell className="text-right">
                         <Skeleton className="h-5 w-20 ml-auto" />
@@ -198,6 +209,9 @@ export function SalesHistory() {
                         {new Date(sale.timestamp).toLocaleDateString()}
                       </TableCell>
                       <TableCell>
+                        {sale.orderId}
+                      </TableCell>
+                      <TableCell>
                         {sale.items.reduce(
                           (acc, item) => acc + item.quantity,
                           0,
@@ -206,6 +220,21 @@ export function SalesHistory() {
                       <TableCell>
                         <Badge variant="outline" className="capitalize">
                           {sale.paymentMethod}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="capitalize">
+                          {sale.salesman}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="capitalize">
+                          {sale.deliveryStatus}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={cn("capitalize", sale.salesStatus === "Completed" ? "border-green-500 text-green-700" : "")}>
+                          {sale.salesStatus}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right font-medium">
